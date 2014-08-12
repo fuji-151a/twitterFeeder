@@ -1,20 +1,36 @@
-package twitter.stream.api;
+package twitter.feeder.stream;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import twitter.feeder.kafka.KafkaProducer;
 import twitter4j.Status;
 import twitter4j.StatusAdapter;
 import twitter4j.json.DataObjectFactory;
 
 /** Tweetを出力するだけのListener. */
 public class Listener extends StatusAdapter {
+
+    /** FIlE NAME. */
+    private final String fileName;
+
+    /** Kafka Instnce. */
+    private KafkaProducer kp;
+
+    /**
+     * コンストラクタ.
+     * @param fileName : confFilePath
+     */
+    public Listener(final String fileName) {
+        this.fileName = fileName;
+        kp = new KafkaProducer(this.fileName);
+    }
+
     // Tweetを受け取るたびにこのメソッドが呼び出される
     @Override
     public void onStatus(Status status) {
         if (isJapanese(status.getText())) {
-            String text = normalizeText(status.getText());
-            System.out.println(DataObjectFactory.getRawJSON(status));
+            kp.produce(DataObjectFactory.getRawJSON(status));
         }
     }
 
@@ -23,7 +39,7 @@ public class Listener extends StatusAdapter {
      * @param text : tweet
      * @return boolean
      */
-    public boolean isJapanese(String text) {
+    private boolean isJapanese(final String text) {
         Matcher m = Pattern.compile("([\\p{InHiragana}\\p{InKatakana}])")
                 .matcher(text);
         return m.find();
