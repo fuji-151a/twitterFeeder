@@ -11,7 +11,7 @@ import kafka.producer.ProducerConfig;
 
 /**
  *
- * @author yuya
+ * @author fuji-151a
  *
  */
 public class KafkaProducer {
@@ -55,11 +55,11 @@ public class KafkaProducer {
      */
     private boolean propFileCheck(final Properties prop) {
         if (prop.getProperty("topic") == null
-                && prop.getProperty("zk.connect") == null
+                && prop.getProperty("zookeeper.connect") == null
                 && prop.getProperty("metadata.broker.list") == null
                 && prop.getProperty("serializer.class") == null) {
             System.out.println("---propertiesFile----");
-            System.out.println("zk.connect=zookeeperHost:Port");
+            System.out.println("zookeeper.connect=zookeeperHost:Port");
             System.out.println("topic=TopicName");
             System.out.println("metadata.broker.list=brokerHost:Port");
             System.out.println("serializer.class="
