@@ -1,7 +1,9 @@
 package twitter.feeder;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.util.Date;
 import java.util.List;
 
@@ -35,11 +37,12 @@ public class Fetcher {
     private String dateDir;
 
     /** File Sizeの閾値. */
-//    private static final long THRESHOLD = 104857600;
-    private static final long THRESHOLD = 10485760;
+    private static final long THRESHOLD = 104857600;
+//    private static final long THRESHOLD = 10485760;
 
     /** 改行コード. */
-    private static String BR = System.getProperty("line.separator");
+    private static String BR
+        = System.getProperty("line.separator");
 
     /**
      * KafkaからTwitterのデータをFetchする.
@@ -84,6 +87,7 @@ public class Fetcher {
     private void write(final String msg) throws Exception {
         String output = outputDir + fileName;
         File file = new File(output);
+        FileOutputStream fo = new FileOutputStream(file, true);
         file.createNewFile();
         if (checkBeforeWriteFile(file)) {
             JSONObject jsonObject = new JSONObject(msg);
@@ -95,9 +99,10 @@ public class Fetcher {
                 makeDir(date);
                 return;
             }
-            FileWriter fw = new FileWriter(file, true);
-            fw.write(msg + BR);
-            fw.close();
+            OutputStreamWriter ow = new OutputStreamWriter(fo, "UTF-8");
+            ow.write(msg + BR);
+            ow.close();
+            fo.close();
         }
     }
 
@@ -138,7 +143,11 @@ public class Fetcher {
     private void setOutputDir(final String dir) {
         this.outputDir = dir;
     }
-    
+
+    /**
+     * dateDirのsetter.
+     * @param dir 日付．
+     */
     private void setDateDir(final String dir) {
         this.dateDir = dir;
     }
@@ -178,8 +187,8 @@ public class Fetcher {
         File dir = new File(outputPath);
         if (!dir.exists()) {
             dir.mkdirs();
-            setDateDir(date.substring(0, 8));
-            setOutputDir(outputPath);
         }
+        setOutputDir(outputPath);
+        setDateDir(date.substring(0, 8));
     }
 }
